@@ -1,30 +1,31 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import KeahlianPage from './pages/KeahlianPage';
-import KeterampilanPage from './pages/KeterampilanPage'; // Although not fully implemented for calculations yet
+import KeterampilanPage from './pages/KeterampilanPage';
 import ResultPage from './pages/ResultPage';
+import PengajuanKenaikan from './pages/PengajuanKenaikan'; // ✅ Import it
 
 function App() {
   return (
-    <Router>
-      <div className="
-        min-h-screen                 /* Sets minimum height to full viewport height */
-        bg-background-dark           /* Applies the dark background color */
-        text-text-light              /* Sets default text color to light */
-        font-roboto                  /* Applies the Roboto font */
-        flex flex-col items-center   /* Centers content horizontally */
-        p-4                          /* Adds some padding around the content */
-      ">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/keahlian" element={<KeahlianPage />} />
-          <Route path="/keterampilan" element={<KeterampilanPage />} />
-          <Route path="/results" element={<ResultPage />} />
-        </Routes>
-      </div>
-    </Router>
+    <div
+      className="
+        min-h-screen
+        bg-background-dark
+        text-text-light
+        font-roboto
+        flex flex-col items-center
+        p-4
+      "
+    >
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/keahlian" element={<KeahlianPage />} />
+        <Route path="/keterampilan" element={<KeterampilanPage />} />
+        <Route path="/results" element={<ResultPage />} />
+        <Route path="/pengajuan-kenaikan" element={<PengajuanKenaikan />} /> {/* ✅ New route */}
+      </Routes>
+    </div>
   );
 }
 

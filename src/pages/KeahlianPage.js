@@ -168,29 +168,30 @@ const KeahlianPage = () => {
     const minimalJenjang = getMinimalJenjangAK(jenjangJabatan);
     const koe = keahlianJenjangOptions[jenjangJabatan] || 0;
 
-    let pangkatMessage = "";
-    if (totalAK >= minimalPangkat) {
-        pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
-    } else {
-        const gapPangkat = minimalPangkat - totalAK;
-        if (koe > 0) {
-            const bln_sb_pangkat = Math.round(gapPangkat / (1.5 * koe) * 12);
-            const bln_baik_pangkat = Math.round(gapPangkat / (1 * koe) * 12);
-            const bln_bp_pangkat = Math.round(gapPangkat / (0.75 * koe) * 12);
+let pangkatMessage = "";
 
-            pangkatMessage = `Kenaikan Pangkat Dapat Dicapai Jika Memperoleh :<br>` +
-                                `- Sangat Baik Dalam ${formatMonths(bln_sb_pangkat)}; atau<br>` +
-                                `- Baik Dalam ${formatMonths(bln_baik_pangkat)}; atau<br>` +
-                                `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_pangkat)}`;
-        } else {
-            pangkatMessage = `Butuh Tambahan Angka Kredit ${gapPangkat.toFixed(2)} Untuk Kenaikan Pangkat.`;
-        }
+if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimalPangkat || totalAK <= minimalPangkat)) {
+    pangkatMessage = "Anda Sudah Mencapai Pangkat Tertinggi Jejang Ahli Utama"; 
+} else if (totalAK >= minimalPangkat) {
+    pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
+} else {
+    const gapPangkat = minimalPangkat - totalAK;
+    if (koe > 0) {
+        const bln_sb_pangkat = Math.round((gapPangkat / (1.5 * koe)) * 12);
+        const bln_baik_pangkat = Math.round((gapPangkat / (1 * koe)) * 12);
+        const bln_bp_pangkat = Math.round((gapPangkat / (0.75 * koe)) * 12);
+
+        pangkatMessage =
+            `Kenaikan Pangkat Dapat Dicapai Jika Memperoleh :<br>` +
+            `- Sangat Baik Dalam ${formatMonths(bln_sb_pangkat)}; atau<br>` +
+            `- Baik Dalam ${formatMonths(bln_baik_pangkat)}; atau<br>` +
+            `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_pangkat)}`;
     }
-
+}
     let jenjangMessage = "";
     if (golongan === "IVe" && jenjangJabatan === "Ahli Utama") {
-        if (totalAK >= minimalJenjang) {
-            jenjangMessage = "Anda Sudah Mencapai Jenjang Jabatan Fungsional Tertinggi";
+        if (totalAK >= minimalJenjang || totalAK <= minimalJenjang ) {
+            jenjangMessage = "Anda Sudah Mencapai Jenjang Jabatan Fungsional Keahlian Tertinggi";
         } else {
             const gapJenjang = minimalJenjang - totalAK;
             if (koe > 0) {
@@ -202,9 +203,7 @@ const KeahlianPage = () => {
                                     `- Sangat Baik Dalam ${formatMonths(bln_sb_jenjang)}; atau<br>` +
                                     `- Baik Dalam ${formatMonths(bln_baik_jenjang)}; atau<br>` +
                                     `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_jenjang)}`;
-            } else {
-                jenjangMessage = `Butuh Tambahan Angka Kredit ${gapJenjang.toFixed(2)} Untuk Mencapai Jenjang Tertinggi.`;
-            }
+            } 
         }
     } else if (totalAK >= minimalJenjang) {
         jenjangMessage = "Dapat Dipertimbangkan Untuk Kenaikan Jenjang Jabatan Fungsional";

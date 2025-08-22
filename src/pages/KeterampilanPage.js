@@ -170,28 +170,29 @@ const KeterampilanPage = () => {
     const koe = keterampilanJenjangOptions[jenjangJabatan] || 0;
 
     let pangkatMessage = "";
-    if (totalAK >= minimalPangkat) {
-        pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
-    } else {
-        const gapPangkat = minimalPangkat - totalAK;
-        if (koe > 0) {
-            const bln_sb_pangkat = Math.round(gapPangkat / (1.5 * koe) * 12);
-            const bln_baik_pangkat = Math.round(gapPangkat / (1 * koe) * 12);
-            const bln_bp_pangkat = Math.round(gapPangkat / (0.75 * koe) * 12);
 
-            pangkatMessage = `Kenaikan Pangkat Dapat Dicapai Jika Memperoleh :<br>` +
-                                `- Sangat Baik Dalam ${formatMonths(bln_sb_pangkat)}; atau<br>` +
-                                `- Baik Dalam ${formatMonths(bln_baik_pangkat)}; atau<br>` +
-                                `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_pangkat)}`;
-        } else {
-            pangkatMessage = `Butuh Tambahan Angka Kredit ${gapPangkat.toFixed(2)} Untuk Kenaikan Pangkat.`;
-        }
+if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalPangkat || totalAK <= minimalPangkat)) {
+    pangkatMessage = "Anda Sudah Mencapai Pangkat Tertinggi Jejang Penyelia";
+} else if (totalAK >= minimalPangkat) {
+    pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
+} else {
+    const gapPangkat = minimalPangkat - totalAK;
+    if (koe > 0) {
+        const bln_sb_pangkat = Math.round((gapPangkat / (1.5 * koe)) * 12);
+        const bln_baik_pangkat = Math.round((gapPangkat / (1 * koe)) * 12);
+        const bln_bp_pangkat = Math.round((gapPangkat / (0.75 * koe)) * 12);
+
+        pangkatMessage = `Kenaikan Pangkat Dapat Dicapai Jika Memperoleh :<br>` +
+                         `- Sangat Baik Dalam ${formatMonths(bln_sb_pangkat)}; atau<br>` +
+                         `- Baik Dalam ${formatMonths(bln_baik_pangkat)}; atau<br>` +
+                         `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_pangkat)}`;
     }
+}
 
     let jenjangMessage = "";
     if (golongan === "IIId" && jenjangJabatan === "Penyelia") {
-        if (totalAK >= minimalJenjang) {
-            jenjangMessage = "Anda Sudah Mencapai Jenjang Jabatan Fungsional Tertinggi";
+        if (totalAK >= minimalJenjang || totalAK <= minimalJenjang) {
+            jenjangMessage = "Anda Sudah Mencapai Jenjang Jabatan Fungsional Keterampilan Tertinggi";
         } else {
             const gapJenjang = minimalJenjang - totalAK;
             if (koe > 0) {
@@ -203,9 +204,7 @@ const KeterampilanPage = () => {
                                     `- Sangat Baik Dalam ${formatMonths(bln_sb_jenjang)}; atau<br>` +
                                     `- Baik Dalam ${formatMonths(bln_baik_jenjang)}; atau<br>` +
                                     `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_jenjang)}`;
-            } else {
-                jenjangMessage = `Butuh Tambahan Angka Kredit ${gapJenjang.toFixed(2)} Untuk Mencapai Jenjang Tertinggi.`;
-            }
+            } 
         }
     } else if (totalAK >= minimalJenjang) {
         jenjangMessage = "Dapat Dipertimbangkan Untuk Kenaikan Jenjang Jabatan Fungsional";
@@ -220,8 +219,6 @@ const KeterampilanPage = () => {
                                 `- Sangat Baik Dalam ${formatMonths(bln_sb_jenjang)}; atau<br>` +
                                 `- Baik Dalam ${formatMonths(bln_baik_jenjang)}; atau<br>` +
                                 `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_jenjang)}`;
-        } else {
-            jenjangMessage = `Butuh Tambahan Angka Kredit ${gapJenjang.toFixed(2)} Untuk Kenaikan Jenjang.`;
         }
     }
 
@@ -289,7 +286,7 @@ const KeterampilanPage = () => {
             text-center
             font-bold
           ">
-            Jenjang JF dan Golongan
+            Jenjang JF Keterampilan dan Golongan
           </h2>
           <div className="mb-4">
             <label htmlFor="jenjangJabatan" className="

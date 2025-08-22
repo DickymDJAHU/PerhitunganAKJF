@@ -1,20 +1,14 @@
-/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import Google Fonts - Ensure these are accessible via CDN or self-hosted */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap');
 
 body {
   margin: 0;
-  font-family: 'Roboto', sans-serif; /* Default font */
+  font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* You had some custom CSS in your original file.
-   Ensure these are correctly converted to Tailwind classes or added here if no direct Tailwind equivalent.
-   For example, if .form-container was used, ensure its styles are applied via utility classes in JSX.
-   I've tried to convert most directly into the JSX for clarity and consistency.
-*/
+/* You can add more custom styles here */
