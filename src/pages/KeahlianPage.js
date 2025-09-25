@@ -31,9 +31,20 @@ const KeahlianPage = () => {
       "September": 9/12, "Oktober": 10/12, "November": 11/12, "Desember": 12/12
   }), []);
 
-  const golonganBonusAK = useMemo(() => ({
-      "IIIb": 50, "IIId": 100, "IVb": 150, "IVc": 300
-  }), []);
+    const golonganDasarAK = useMemo(() => ({
+      // Special combos
+      "Ahli Pertama": { "IIIc": 50 },
+      "Ahli Muda": { "IVa": 100 },
+      "Ahli Madya": { "IVd": 300 },
+
+      // General mapping (applies to all jenjang unless overridden above)
+      base: {
+        "IIIb": 50,
+        "IIId": 100,
+        "IVb": 150,
+        "IVc": 300
+      }
+    }), []);
 
   // --- Utility Functions (memoized) ---
   const formatMonths = useCallback((totalMonths) => {
@@ -47,18 +58,30 @@ const KeahlianPage = () => {
   }, []);
 
   const getMinimalPangkatAK = useCallback((jenjang, golongan) => {
-      if (jenjang === "Ahli Madya") {
-          if (golongan === "IVb") return 300;
-          if (golongan === "IVc") return 450;
-      }
-      switch (jenjang) {
-          case "Ahli Pertama": return 50;
-          case "Ahli Muda": return 100;
-          case "Ahli Madya": return 150;
-          case "Ahli Utama": return 200;
-          default: return 0;
-      }
-  }, []);
+  // special combos that override defaults
+  if (jenjang === "Ahli Pertama" && golongan === "IIIc") {
+    return { display: 50, value: 100 };
+  }
+
+  if (jenjang === "Ahli Muda" && golongan === "IVa") {
+    return { display: 100, value: 200 };
+  }
+
+  if (jenjang === "Ahli Madya") {
+    if (golongan === "IVb") return { display: 150, value: 300 };
+    if (golongan === "IVc") return { display: 150, value: 450 };
+    if (golongan === "IVd") return { display: 150, value: 450 }; // <- fixed to 300
+  }
+
+  // defaults by jenjang
+  switch (jenjang) {
+    case "Ahli Pertama": return { display: 50, value: 50 };
+    case "Ahli Muda":    return { display: 100, value: 100 };
+    case "Ahli Madya":   return { display: 150, value: 150 };
+    case "Ahli Utama":   return { display: 200, value: 200 };
+    default:             return { display: 0, value: 0 };
+  }
+}, []);
 
   const getMinimalJenjangAK = useCallback((jenjang) => {
       switch (jenjang) {
@@ -159,23 +182,29 @@ const KeahlianPage = () => {
     const currentAKKonversi2023 = calculatedAk2023;
     const currentAKKonversi2024 = calculatedAk2024;
     const currentAKKonversi2025 = calculatedAk2025;
-    const bonusAK = golonganBonusAK[golongan] || 0;
+    const dasarAK =
+                  (golonganDasarAK[jenjangJabatan]?.[golongan]) ??
+                  (golonganDasarAK.base[golongan]) ??
+                  0;
 
     const totalAK = currentAKPendidikan + currentAKPenyesuaian + currentAKKonversi2022 +
-                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + bonusAK;
+                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + dasarAK;
 
-    const minimalPangkat = getMinimalPangkatAK(jenjangJabatan, golongan);
+    // get both numbers
+    const minimalPangkatObj = getMinimalPangkatAK(jenjangJabatan, golongan);
+    const minimalPangkatDisplay = Number(minimalPangkatObj.display || 0); // for UI only
+    const minimalPangkatValue   = Number(minimalPangkatObj.value || 0);   // for calculations
+
     const minimalJenjang = getMinimalJenjangAK(jenjangJabatan);
     const koe = keahlianJenjangOptions[jenjangJabatan] || 0;
 
 let pangkatMessage = "";
-
-if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimalPangkat || totalAK <= minimalPangkat)) {
+if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimalPangkatValue || totalAK <= minimalPangkatValue)) {
     pangkatMessage = "Anda Sudah Mencapai Pangkat Tertinggi Jejang Ahli Utama"; 
-} else if (totalAK >= minimalPangkat) {
+} else if (totalAK >= minimalPangkatValue) {
     pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
 } else {
-    const gapPangkat = minimalPangkat - totalAK;
+    const gapPangkat = minimalPangkatValue - totalAK;
     if (koe > 0) {
         const bln_sb_pangkat = Math.round((gapPangkat / (1.5 * koe)) * 12);
         const bln_baik_pangkat = Math.round((gapPangkat / (1 * koe)) * 12);
@@ -227,11 +256,11 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
       state: {
         results: {
           totalAK: totalAK.toFixed(2),
-          akMinimalPangkat: minimalPangkat.toFixed(2),
+          akMinimalPangkat: minimalPangkatDisplay.toFixed(2), // for UI
           akMinimalJenjang: minimalJenjang.toFixed(2),
           kenaikanPangkat: pangkatMessage,
           kenaikanJenjang: jenjangMessage,
-          isPangkatSufficient: totalAK >= minimalPangkat,
+          isPangkatSufficient: totalAK >= minimalPangkatValue,
           isJenjangSufficient: totalAK >= minimalJenjang,
         },
         formData: currentFormData,
@@ -258,7 +287,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
     ">
       <h1 className="
         font-orbitron
-        text-text-accent
+        text-blue-300
         text-2xl
         md:text-3xl
         font-bold
@@ -280,7 +309,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
         ">
           <h2 className="
             font-orbitron
-            text-text-accent
+            text-blue-300
             text-xl
             md:text-2xl
             mb-px-17
@@ -377,7 +406,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
         ">
           <h2 className="
             font-orbitron
-            text-text-accent
+            text-blue-300
             text-xl
             md:text-2xl
             mb-px-17
@@ -497,26 +526,35 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
           <div className="mb-4">
             <label htmlFor="penyesuaianPenyetaraan" className="sr-only">Penyesuaian/Penyetaraan</label>
             <input
-              type="number"
-              id="penyesuaianPenyetaraan"
-              name="penyesuaianPenyetaraan"
-              step="0.01"
-              placeholder="e.g., 12.50"
-              className="
-                w-full
-                bg-input-bg
-                text-text-light
-                p-px-10
-                my-px-10
-                border border-border-color
-                rounded-md
-                text-base
-                box-border
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-              "
-              value={penyesuaianPenyetaraan}
-              onChange={(e) => setPenyesuaianPenyetaraan(e.target.value)}
-            />
+            type="text" // use text instead of number
+            id="penyesuaianPenyetaraan"
+            name="penyesuaianPenyetaraan"
+            placeholder="e.g., 12,50"
+            className="
+              w-full
+              bg-input-bg
+              text-text-light
+              p-px-10
+              my-px-10
+              border border-border-color
+              rounded-md
+              text-base
+              box-border
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            "
+            value={penyesuaianPenyetaraan}
+            onChange={(e) => {
+              let val = e.target.value;
+
+              // allow only digits and one comma
+              val = val.replace(/[^0-9,]/g, "").replace(/,(?=.*,)/g, "");
+
+              // remove leading zeros unless "0," case
+              val = val.replace(/^0+(?=\d)/, "");
+
+              setPenyesuaianPenyetaraan(val);
+            }}
+          />
           </div>
 
           {/* Angka Kredit Konversi */}
@@ -542,26 +580,45 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
               Tahun 2022
             </label>
             <input
-              type="number"
-              id="akKonversi2022"
-              name="akKonversi2022"
-              step="0.01"
-              placeholder="e.g., 50.00"
-              className="
-                w-full
-                bg-input-bg
-                text-text-light
-                p-px-10
-                my-px-10
-                border border-border-color
-                rounded-md
-                text-base
-                box-border
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-              "
-              value={akKonversi2022}
-              onChange={(e) => setAkKonversi2022(e.target.value)}
-            />
+            type="text" // use text so we can allow commas
+            id="akKonversi2022"
+            name="akKonversi2022"
+            placeholder="e.g., 50,00"
+            className="
+              w-full
+              bg-input-bg
+              text-text-light
+              p-px-10
+              my-px-10
+              border border-border-color
+              rounded-md
+              text-base
+              box-border
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            "
+            value={akKonversi2022}
+            onChange={(e) => {
+              let val = e.target.value;
+
+              // allow only digits and one comma
+              val = val.replace(/[^0-9,]/g, "").replace(/,(?=.*,)/g, "");
+
+              // remove leading zeros unless "0," case
+              val = val.replace(/^0+(?=\d)/, "");
+
+              setAkKonversi2022(val);
+            }}
+            onBlur={() => {
+              // Convert comma string to number internally if needed
+              if (akKonversi2022) {
+                const num = parseFloat(akKonversi2022.replace(",", "."));
+                if (!isNaN(num)) {
+                  // store as string with 2 decimals and comma
+                  setAkKonversi2022(num.toFixed(2).replace(".", ","));
+                }
+              }
+            }}
+          />
           </div>
 
           <div className="mb-4">
@@ -727,8 +784,8 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
           id="hitungButton"
           className="
             w-full
-            bg-text-accent
-            text-[#1f1f1f]
+            bg-blue-400
+            text-white
             py-px-13_5
             text-lg
             font-bold
@@ -737,7 +794,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
             mt-px-17
             cursor-pointer
             transition-colors duration-300
-            hover:bg-[#a9e4b5]
+            hover:bg-green-600
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
           "
         >

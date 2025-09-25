@@ -15,7 +15,7 @@ const KeterampilanPage = () => {
       "Penyelia": 25
   }), []);
 
-  const keterampilanGolonganOptions = useMemo(() => ["IIa", "IIb", "IIc", "IId", "IIIa", "IIIb", "IIIc", "IIId"], []);
+  const keterampilanGolonganOptions = useMemo(() => ["IIa", "IIb", "IIc", "IId", "IIIa", "IIIb", "IIIc", "IIId", "IVa"], []);
 
   const penilaianToMultiplier = useMemo(() => ({
       "Sangat Baik": 1.5,
@@ -31,9 +31,22 @@ const KeterampilanPage = () => {
       "September": 9/12, "Oktober": 10/12, "November": 11/12, "Desember": 12/12
   }), []);
 
-  const golonganBonusAK = useMemo(() => ({
-      "IIc": 20, "IId": 40, "IIIb": 50
-  }), []);
+      const golonganDasarAK = useMemo(() => ({
+        // Special combos
+        "Pemula": { "IIb": 15 },
+        "Terampil": { "IIIa": 40 },
+        "Mahir": { "IIIc": 50 },
+  
+        // General mapping (applies to all jenjang unless overridden above)
+        base: {
+          "IIc": 20,
+          "IId": 40,
+          "IIIb": 50,
+          "IIId": 100,
+          "IVa": 100
+        }
+      }), []);
+
 
   // --- Utility Functions (memoized) ---
   const formatMonths = useCallback((totalMonths) => {
@@ -48,28 +61,44 @@ const KeterampilanPage = () => {
 
   // --- Calculation Functions (memoized) ---
   const getMinimalPangkatAK = useCallback((jenjang, golongan) => {
-      if (jenjang === "Terampil") {
-          if (golongan === "IIc") return 40;
-          if (golongan === "IId") return 40;
-      }
-      switch (jenjang) {
-          case "Pemula": return 15;
-          case "Terampil": return 20;
-          case "Mahir": return 50;
-          case "Penyelia": return 100;
-          default: return 0;
-      }
+    // special-case Terampil + certain golongan
+    if (jenjang === "Terampil") {
+      if (golongan === "IIc") return { display: 20, value: 40 };
+      if (golongan === "IId") return { display: 20, value: 60 };
+      if (golongan === "IIIa") return { display: 20, value: 60 };
+    }
+      if (jenjang === "Pemula") {
+      if (golongan === "IIb") return { display: 15, value: 30 };
+    }
+        if (jenjang === "Mahir") {
+      if (golongan === "IIIc") return { display: 50, value: 100 };
+    }
+        if (jenjang === "Penyelia") {
+      if (golongan === "IVa") return { display: 100, value: 200 };
+    }
+    switch (jenjang) {
+      case "Pemula": return { display: 15, value: 15 };
+      case "Terampil":    return { display: 20, value: 20 };
+      case "Mahir":   return { display: 50, value: 50 };
+      case "Penyelia":   return { display: 100, value: 100 };
+      default:             return { display: 0, value: 0 };
+    }
   }, []);
 
-  const getMinimalJenjangAK = useCallback((jenjang) => {
-      switch (jenjang) {
-          case "Pemula": return 15;
-          case "Terampil": return 60;
-          case "Mahir": return 100;
-          case "Penyelia": return 100;
-          default: return 0;
+    const getMinimalJenjangAK = useCallback((jenjang, golongan) => {
+      // special case: Pemula + IIb
+      if (jenjang === "Pemula" && golongan === "IIb") {
+        return { display: 15, value: 30 };
       }
-  }, []);
+
+      // defaults by jenjang
+      if (jenjang === "Pemula")   return { display: 15, value: 15 };
+      if (jenjang === "Terampil") return { display: 60, value: 60 };
+      if (jenjang === "Mahir")    return { display: 100, value: 100 };
+      if (jenjang === "Penyelia") return { display: 200, value: 200 };
+
+      // no default → will return undefined if not matched
+    }, []);
 
   const calculateAkKonversi = useCallback((penilaian, jenjang) => {
       const multiplier = penilaianToMultiplier[penilaian] || 0;
@@ -160,23 +189,30 @@ const KeterampilanPage = () => {
     const currentAKKonversi2023 = calculatedAk2023;
     const currentAKKonversi2024 = calculatedAk2024;
     const currentAKKonversi2025 = calculatedAk2025;
-    const bonusAK = golonganBonusAK[golongan] || 0;
+    const dasarAK =
+                  (golonganDasarAK[jenjangJabatan]?.[golongan]) ??
+                  (golonganDasarAK.base[golongan]) ??
+                  0;
 
     const totalAK = currentAKPendidikan + currentAKPenyesuaian + currentAKKonversi2022 +
-                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + bonusAK;
+                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + dasarAK;
 
-    const minimalPangkat = getMinimalPangkatAK(jenjangJabatan, golongan);
-    const minimalJenjang = getMinimalJenjangAK(jenjangJabatan);
+    const minimalPangkatObj = getMinimalPangkatAK(jenjangJabatan, golongan);
+    const minimalPangkatDisplay = Number(minimalPangkatObj.display || 0); // for UI only
+    const minimalPangkatValue   = Number(minimalPangkatObj.value || 0);   // for calculations
+
+    const minimalJenjangObj = getMinimalJenjangAK(jenjangJabatan, golongan);
+    const minimalJenjangValue = Number(minimalJenjangObj.value || 0);;
     const koe = keterampilanJenjangOptions[jenjangJabatan] || 0;
 
     let pangkatMessage = "";
 
-if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalPangkat || totalAK <= minimalPangkat)) {
+if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalPangkatValue || totalAK <= minimalPangkatValue)) {
     pangkatMessage = "Anda Sudah Mencapai Pangkat Tertinggi Jejang Penyelia";
-} else if (totalAK >= minimalPangkat) {
+} else if (totalAK >= minimalPangkatValue) {
     pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
 } else {
-    const gapPangkat = minimalPangkat - totalAK;
+    const gapPangkat = minimalPangkatValue - totalAK;
     if (koe > 0) {
         const bln_sb_pangkat = Math.round((gapPangkat / (1.5 * koe)) * 12);
         const bln_baik_pangkat = Math.round((gapPangkat / (1 * koe)) * 12);
@@ -191,10 +227,10 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
 
     let jenjangMessage = "";
     if (golongan === "IIId" && jenjangJabatan === "Penyelia") {
-        if (totalAK >= minimalJenjang || totalAK <= minimalJenjang) {
+        if (totalAK >= minimalJenjangValue || totalAK <= minimalJenjangValue) {
             jenjangMessage = "Anda Sudah Mencapai Jenjang Jabatan Fungsional Keterampilan Tertinggi";
         } else {
-            const gapJenjang = minimalJenjang - totalAK;
+            const gapJenjang = minimalJenjangValue - totalAK;
             if (koe > 0) {
                 const bln_sb_jenjang = Math.round(gapJenjang / (1.5 * koe) * 12);
                 const bln_baik_jenjang = Math.round(gapJenjang / (1 * koe) * 12);
@@ -206,10 +242,10 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
                                     `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_jenjang)}`;
             } 
         }
-    } else if (totalAK >= minimalJenjang) {
+    } else if (totalAK >= minimalJenjangValue) {
         jenjangMessage = "Dapat Dipertimbangkan Untuk Kenaikan Jenjang Jabatan Fungsional";
     } else {
-        const gapJenjang = minimalJenjang - totalAK;
+        const gapJenjang = minimalJenjangValue - totalAK;
         if (koe > 0) {
             const bln_sb_jenjang = Math.round(gapJenjang / (1.5 * koe) * 12);
             const bln_baik_jenjang = Math.round(gapJenjang / (1 * koe) * 12);
@@ -221,17 +257,16 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
                                 `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_jenjang)}`;
         }
     }
-
     navigate('/results', {
       state: {
         results: {
           totalAK: totalAK.toFixed(2),
-          akMinimalPangkat: minimalPangkat.toFixed(2),
-          akMinimalJenjang: minimalJenjang.toFixed(2),
+          akMinimalPangkat: minimalPangkatDisplay.toFixed(2), // for UI
+          akMinimalJenjang: minimalJenjangValue.toFixed(2),
           kenaikanPangkat: pangkatMessage,
           kenaikanJenjang: jenjangMessage,
-          isPangkatSufficient: totalAK >= minimalPangkat,
-          isJenjangSufficient: totalAK >= minimalJenjang,
+          isPangkatSufficient: totalAK >= minimalPangkatValue,
+          isJenjangSufficient: totalAK >= minimalJenjangValue,
         },
         formData: currentFormData,
         originPath: '/keterampilan', // <--- Add this line
@@ -496,26 +531,35 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
           <div className="mb-4">
             <label htmlFor="penyesuaianPenyetaraan" className="sr-only">Penyesuaian/Penyetaraan</label>
             <input
-              type="number"
-              id="penyesuaianPenyetaraan"
-              name="penyesuaianPenyetaraan"
-              step="0.01"
-              placeholder="e.g., 12.50"
-              className="
-                w-full
-                bg-input-bg
-                text-text-light
-                p-px-10
-                my-px-10
-                border border-border-color
-                rounded-md
-                text-base
-                box-border
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-              "
-              value={penyesuaianPenyetaraan}
-              onChange={(e) => setPenyesuaianPenyetaraan(e.target.value)}
-            />
+            type="text" // use text instead of number
+            id="penyesuaianPenyetaraan"
+            name="penyesuaianPenyetaraan"
+            placeholder="e.g., 12,50"
+            className="
+              w-full
+              bg-input-bg
+              text-text-light
+              p-px-10
+              my-px-10
+              border border-border-color
+              rounded-md
+              text-base
+              box-border
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            "
+            value={penyesuaianPenyetaraan}
+            onChange={(e) => {
+              let val = e.target.value;
+
+              // allow only digits and one comma
+              val = val.replace(/[^0-9,]/g, "").replace(/,(?=.*,)/g, "");
+
+              // remove leading zeros unless "0," case
+              val = val.replace(/^0+(?=\d)/, "");
+
+              setPenyesuaianPenyetaraan(val);
+            }}
+          />
           </div>
 
           {/* Angka Kredit Konversi */}
@@ -541,26 +585,45 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
               Tahun 2022
             </label>
             <input
-              type="number"
-              id="akKonversi2022"
-              name="akKonversi2022"
-              step="0.01"
-              placeholder="e.g., 50.00"
-              className="
-                w-full
-                bg-input-bg
-                text-text-light
-                p-px-10
-                my-px-10
-                border border-border-color
-                rounded-md
-                text-base
-                box-border
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-              "
-              value={akKonversi2022}
-              onChange={(e) => setAkKonversi2022(e.target.value)}
-            />
+            type="text" // use text so we can allow commas
+            id="akKonversi2022"
+            name="akKonversi2022"
+            placeholder="e.g., 50,00"
+            className="
+              w-full
+              bg-input-bg
+              text-text-light
+              p-px-10
+              my-px-10
+              border border-border-color
+              rounded-md
+              text-base
+              box-border
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            "
+            value={akKonversi2022}
+            onChange={(e) => {
+              let val = e.target.value;
+
+              // allow only digits and one comma
+              val = val.replace(/[^0-9,]/g, "").replace(/,(?=.*,)/g, "");
+
+              // remove leading zeros unless "0," case
+              val = val.replace(/^0+(?=\d)/, "");
+
+              setAkKonversi2022(val);
+            }}
+            onBlur={() => {
+              // Convert comma string to number internally if needed
+              if (akKonversi2022) {
+                const num = parseFloat(akKonversi2022.replace(",", "."));
+                if (!isNaN(num)) {
+                  // store as string with 2 decimals and comma
+                  setAkKonversi2022(num.toFixed(2).replace(".", ","));
+                }
+              }
+            }}
+          />
           </div>
 
           <div className="mb-4">
@@ -736,7 +799,7 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
             mt-px-17
             cursor-pointer
             transition-colors duration-300
-            hover:bg-[#a9e4b5]
+            hover:bg-green-600
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
           "
         >

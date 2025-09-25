@@ -30,7 +30,7 @@ const HomePage = () => {
     >
       <h1 className="
         font-orbitron
-        text-text-accent
+        text-teal-400
         mb-px-30
         text-4xl md:text-5xl
         drop-shadow-lg
@@ -48,7 +48,7 @@ const HomePage = () => {
           onClick={handleKeahlianClick}
           className="
             bg-button-dark
-            text-text-light
+            text-blue-300
             py-px-12 px-px-20
             text-lg
             font-bold
@@ -60,7 +60,7 @@ const HomePage = () => {
             min-w-min-w-160
             text-center
             box-border
-            hover:bg-text-accent
+            hover:bg-blue-300
             hover:text-[#1f1f1f]
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
           "
@@ -71,7 +71,7 @@ const HomePage = () => {
           onClick={handleKeterampilanClick}
           className="
             bg-button-dark
-            text-text-light
+            text-text-accent
             py-px-12 px-px-20
             text-lg
             font-bold

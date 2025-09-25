@@ -33,28 +33,30 @@ const ResultPage = () => {
   const isJenjangEligible = kenaikanJenjang.includes('Dapat Dipertimbangkan Untuk Kenaikan Jenjang Jabatan Fungsional');
 
   if (isPangkatEligible && isJenjangEligible) {
-    dokumenButtonText = 'Lanjutkan Membuat Dokumen Pengajuan Kenaikan Pangkat & Jenjang';
+    dokumenButtonText = 'Buat Dokumen Usulan Penetapan Angka Kredit Kenaikan Jenjang';
   } else if (isPangkatEligible) {
-    dokumenButtonText = 'Lanjutkan Membuat Dokumen Pengajuan Kenaikan Pangkat';
+    dokumenButtonText = 'Buat Dokumen Usulan Penetapan Angka Kredit Kenaikan Pangkat';
   }
 
   const showDokumenButton = !!dokumenButtonText;
 
   // Handle "Lanjutkan Dokumen Pengajuan" click
-  const handleLanjutkanDokumen = () => {
-    navigate('/Pengajuan-Kenaikan', { state: { results, formData: originalFormData } });
-  };
+const handleLanjutkanDokumen = () => {
+  window.location.href = "https://forms.gle/JQatLxyBcBYcBps16";
+};
 
   return (
     <div
-      className="
-        flex items-center justify-center
-        min-h-screen
-        p-px-20
-        font-roboto
-        bg-background-dark bg-opacity-90
-      "
-      onClick={handleBackgroundClick}
+  className="
+    flex items-center justify-center
+    min-h-screen
+    px-5 md:px-20
+    font-roboto
+    bg-background-dark bg-opacity-90
+    w-full
+    overflow-x-hidden
+  "
+  onClick={handleBackgroundClick}
     >
       <div
         id="resultsModalContent"
@@ -64,7 +66,7 @@ const ResultPage = () => {
           p-px-14_25
           rounded-lg
           shadow-xl
-          max-w-[496px]
+          max-w-[500px]
           w-full
           box-border
           text-center
@@ -76,7 +78,7 @@ const ResultPage = () => {
           <h2
             className="
               font-orbitron
-              text-text-accent
+              text-teal-400
               text-xl
               md:text-2xl
               text-center
@@ -97,7 +99,7 @@ const ResultPage = () => {
                       py-px-9_5
                       px-4
                       bg-result-header-bg
-                      text-text-accent
+                      text-teal-400
                       text-lg
                       font-bold
                       border border-result-table-border
@@ -111,7 +113,7 @@ const ResultPage = () => {
                       py-px-9_5
                       px-4
                       bg-result-header-bg
-                      text-text-accent
+                      text-teal-400
                       text-lg
                       font-bold
                       border border-result-table-border
@@ -127,7 +129,7 @@ const ResultPage = () => {
                       py-px-6
                       px-4
                       bg-result-subheader-bg
-                      text-text-accent
+                      text-teal-400
                       font-bold
                       text-sm
                       border border-result-table-border
@@ -141,7 +143,7 @@ const ResultPage = () => {
                       py-px-6
                       px-4
                       bg-result-subheader-bg
-                      text-text-accent
+                      text-teal-400
                       font-bold
                       text-sm
                       border border-result-table-border
@@ -165,7 +167,7 @@ const ResultPage = () => {
                       text-center
                       leading-none
                       bg-result-subheader-bg
-                      text-text-accent
+                      text-teal-400
                       border border-result-table-border
                     "
                   >
@@ -215,7 +217,7 @@ const ResultPage = () => {
                   >
                     <p
                       className="
-                        text-text-accent
+                        text-teal-400
                         text-lg
                         font-bold
                         mb-2
@@ -243,7 +245,7 @@ const ResultPage = () => {
                   >
                     <p
                       className="
-                        text-text-accent
+                        text-teal-400
                         text-lg
                         font-bold
                         mb-2
