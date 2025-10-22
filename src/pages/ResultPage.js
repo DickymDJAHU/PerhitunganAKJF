@@ -51,7 +51,7 @@ const handleLanjutkanDokumen = () => {
     flex items-center justify-center
     min-h-screen
     px-5 md:px-20
-    font-roboto
+    font-poppins
     bg-background-dark bg-opacity-90
     w-full
     overflow-x-hidden
@@ -77,10 +77,10 @@ const handleLanjutkanDokumen = () => {
         <div id="results-section" className="pt-0 border-t-0 block bg-transparent mt-0">
           <h2
             className="
-              font-orbitron
+              font-poppins
               text-teal-400
               text-xl
-              md:text-2xl
+              md:text-5xl
               text-center
               mb-px-17
               font-bold

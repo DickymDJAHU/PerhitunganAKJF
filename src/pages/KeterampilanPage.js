@@ -195,7 +195,7 @@ const KeterampilanPage = () => {
                   0;
 
     const totalAK = currentAKPendidikan + currentAKPenyesuaian + currentAKKonversi2022 +
-                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + dasarAK;
+                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + dasarAK -dasarAK;
 
     const minimalPangkatObj = getMinimalPangkatAK(jenjangJabatan, golongan);
     const minimalPangkatDisplay = Number(minimalPangkatObj.display || 0); // for UI only
@@ -276,7 +276,7 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
 
   return (
     <div className="
-      max-w-[600px]
+      max-w-[500px]
       mx-auto
       my-px-20
       p-px-15
@@ -291,7 +291,7 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
       transition-opacity duration-500 ease-in
     ">
       <h1 className="
-        font-orbitron
+        font-poppins
         text-text-accent
         text-2xl
         md:text-3xl
@@ -313,7 +313,7 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
           block
         ">
           <h2 className="
-            font-orbitron
+            font-poppins
             text-text-accent
             text-xl
             md:text-2xl
@@ -410,7 +410,7 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
           block
         ">
           <h2 className="
-            font-orbitron
+            font-poppins
             text-text-accent
             text-xl
             md:text-2xl
@@ -562,9 +562,9 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
           />
           </div>
 
-          {/* Angka Kredit Konversi */}
+          {/* Angka Kredit Integrasi */}
           <h3 className="
-            font-orbitron
+            font-poppins
             text-text-accent
             text-xl
             md:text-2xl
@@ -572,7 +572,7 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
             text-center
             font-bold
           ">
-            Angka Kredit Konversi
+            Angka Kredit Integrasi
           </h3>
           <div className="mb-4">
             <label htmlFor="akKonversi2022" className="
@@ -626,6 +626,18 @@ if (golongan === "IIId" && jenjangJabatan === "Penyelia" && (totalAK >= minimalP
           />
           </div>
 
+ {/* Angka Kredit Konversi */}
+          <h3 className="
+            font-poppins
+            text-text-accent
+            text-xl
+            md:text-2xl
+            mb-px-17
+            text-center
+            font-bold
+          ">
+            Angka Kredit Konversi
+          </h3>
           <div className="mb-4">
             <label htmlFor="akKonversi2023" className="
               block text-text-light

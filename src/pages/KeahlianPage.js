@@ -188,7 +188,7 @@ const KeahlianPage = () => {
                   0;
 
     const totalAK = currentAKPendidikan + currentAKPenyesuaian + currentAKKonversi2022 +
-                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + dasarAK;
+                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + dasarAK - dasarAK;
 
     // get both numbers
     const minimalPangkatObj = getMinimalPangkatAK(jenjangJabatan, golongan);
@@ -271,7 +271,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
 
   return (
     <div className="
-      max-w-[600px]
+      max-w-[500px]
       mx-auto
       my-px-20
       p-px-15
@@ -279,14 +279,14 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
       rounded-lg
       shadow-xl
       text-text-light
-      font-roboto
+      font-poppins
       box-border
       w-full
       opacity-100
       transition-opacity duration-500 ease-in
     ">
       <h1 className="
-        font-orbitron
+        font-poppins
         text-blue-300
         text-2xl
         md:text-3xl
@@ -308,7 +308,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
           block
         ">
           <h2 className="
-            font-orbitron
+            font-poppins
             text-blue-300
             text-xl
             md:text-2xl
@@ -405,7 +405,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
           block
         ">
           <h2 className="
-            font-orbitron
+            font-poppins
             text-blue-300
             text-xl
             md:text-2xl
@@ -418,7 +418,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
 
           {/* Pendidikan */}
           <h3 className="
-            font-roboto
+            font-poppins
             text-text-light
             text-lg
             mt-px-21
@@ -511,7 +511,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
 
           {/* Penyesuaian/Penyetaraan */}
           <h3 className="
-            font-roboto
+            font-poppins
             text-text-light
             text-lg
             mt-px-21
@@ -557,18 +557,18 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
           />
           </div>
 
-          {/* Angka Kredit Konversi */}
-          <h3 className="
-            font-roboto
-            text-text-light
-            text-lg
-            mt-px-21
-            mb-px-11
-            text-left
-            font-semibold
+          <h2 className="
+            font-poppins
+            text-blue-300
+            text-xl
+            md:text-2xl
+            mb-px-17
+            text-center
+            font-bold
           ">
-            Angka Kredit Konversi
-          </h3>
+            Angka Kredit Integrasi
+          </h2>
+
           <div className="mb-4">
             <label htmlFor="akKonversi2022" className="
               block text-text-light
@@ -620,6 +620,18 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
             }}
           />
           </div>
+
+          <h2 className="
+            font-poppins
+            text-blue-300
+            text-xl
+            md:text-2xl
+            mb-px-17
+            text-center
+            font-bold
+          ">
+            Angka Kredit Konversi
+          </h2>
 
           <div className="mb-4">
             <label htmlFor="akKonversi2023" className="
