@@ -17,6 +17,9 @@ const KeahlianPage = () => {
 
   const keahlianGolonganOptions = useMemo(() => ["IIIa", "IIIb", "IIIc", "IIId", "IVa", "IVb", "IVc", "IVd", "IVe"], []);
 
+    const [bulantmt, setBulan] = useState("");
+    const [tahuntmt, setTahun] = useState("");
+
   const penilaianToMultiplier = useMemo(() => ({
       "Sangat Baik": 1.5,
       "Baik": 1,
@@ -31,6 +34,20 @@ const KeahlianPage = () => {
       "September": 9/12, "Oktober": 10/12, "November": 11/12, "Desember": 12/12
   }), []);
 
+    const bulanToFractionReverse = useMemo(() => ({
+    "Desember": 1/12,
+    "November": 2/12,
+    "Oktober": 3/12,
+    "September": 4/12,
+    "Agustus": 5/12,
+    "Juli": 6/12,
+    "Juni": 7/12,
+    "Mei": 8/12,
+    "April": 9/12,
+    "Maret": 10/12,
+    "Februari": 11/12,
+    "Januari": 12/12
+  }), []);
     const golonganDasarAK = useMemo(() => ({
       // Special combos
       "Ahli Pertama": { "IIIc": 50 },
@@ -68,8 +85,8 @@ const KeahlianPage = () => {
   }
 
   if (jenjang === "Ahli Madya") {
-    if (golongan === "IVb") return { display: 150, value: 300 };
-    if (golongan === "IVc") return { display: 150, value: 450 };
+    if (golongan === "IVb") return { display: 300, value: 300 };
+    if (golongan === "IVc") return { display: 300, value: 300 };
     if (golongan === "IVd") return { display: 150, value: 450 }; // <- fixed to 300
   }
 
@@ -96,14 +113,14 @@ const KeahlianPage = () => {
   const calculateAkKonversi = useCallback((penilaian, jenjang) => {
       const multiplier = penilaianToMultiplier[penilaian] || 0;
       const baseAK = keahlianJenjangOptions[jenjang] || 0;
-      return parseFloat((multiplier * baseAK).toFixed(2));
+      return Number((multiplier * baseAK).toFixed(3));
   }, [penilaianToMultiplier, keahlianJenjangOptions]);
 
-  const calculateAkKonversi2025 = useCallback((penilaian, jenjang, bulan) => {
+  const calculateAkKonversi2026 = useCallback((penilaian, jenjang, bulan) => {
       const multiplier = penilaianToMultiplier[penilaian] || 0;
       const baseAK = keahlianJenjangOptions[jenjang] || 0;
       const bulanFraction = bulanToFraction[bulan] || 0;
-      return parseFloat((multiplier * baseAK * bulanFraction).toFixed(2));
+      return Number((multiplier * baseAK * bulanFraction).toFixed(3));
   }, [penilaianToMultiplier, keahlianJenjangOptions, bulanToFraction]);
 
   // --- State for form fields (Initialize with passed data if available) ---
@@ -116,12 +133,14 @@ const KeahlianPage = () => {
   const [akKonversi2023, setAkKonversi2023] = useState(location.state?.formData?.akKonversi2023 || '');
   const [akKonversi2024, setAkKonversi2024] = useState(location.state?.formData?.akKonversi2024 || '');
   const [akKonversi2025, setAkKonversi2025] = useState(location.state?.formData?.akKonversi2025 || '');
-  const [periodeBulan2025, setPeriodeBulan2025] = useState(location.state?.formData?.periodeBulan2025 || '');
+  const [akKonversi2026, setAkKonversi2026] = useState(location.state?.formData?.akKonversi2026 || '');
+  const [periodeBulan2026, setPeriodeBulan2026] = useState(location.state?.formData?.periodeBulan2026 || '');
 
   // Calculated AK values
   const [calculatedAk2023, setCalculatedAk2023] = useState(0);
   const [calculatedAk2024, setCalculatedAk2024] = useState(0);
   const [calculatedAk2025, setCalculatedAk2025] = useState(0);
+  const [calculatedAk2026, setCalculatedAk2026] = useState(0);
 
   // UI state
   const [showPendidikanAkField, setShowPendidikanAkField] = useState(location.state?.formData?.pendidikanKlaim === 'Ya');
@@ -136,7 +155,7 @@ const KeahlianPage = () => {
     if (pendidikanKlaim === 'Ya') {
       setShowPendidikanAkField(true);
       const jenjangBaseAK = keahlianJenjangOptions[jenjangJabatan] || 0;
-      const akValue = parseFloat((jenjangBaseAK * 0.25).toFixed(2));
+      const akValue = Number((jenjangBaseAK).toFixed(3));
       setAngkaKreditPendidikan(akValue);
     } else {
       setShowPendidikanAkField(false);
@@ -150,10 +169,11 @@ const KeahlianPage = () => {
     setCalculatedAk2023(ak2023);
     const ak2024 = calculateAkKonversi(akKonversi2024, jenjang);
     setCalculatedAk2024(ak2024);
-    const ak2025 = calculateAkKonversi2025(akKonversi2025, jenjang, periodeBulan2025);
+    const ak2025 = calculateAkKonversi(akKonversi2025, jenjang);
     setCalculatedAk2025(ak2025);
-  }, [jenjangJabatan, akKonversi2023, akKonversi2024, akKonversi2025, periodeBulan2025, calculateAkKonversi, calculateAkKonversi2025]);
-
+    const ak2026 = calculateAkKonversi2026(akKonversi2026, jenjang, periodeBulan2026);
+    setCalculatedAk2026(ak2026);
+  }, [jenjangJabatan, akKonversi2023, akKonversi2024, akKonversi2025, akKonversi2026, periodeBulan2026, calculateAkKonversi, calculateAkKonversi2026]);
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -166,6 +186,8 @@ const KeahlianPage = () => {
     const currentFormData = {
         jenjangJabatan,
         golongan,
+        bulantmt,
+        tahuntmt,
         pendidikanKlaim,
         angkaKreditPendidikan,
         penyesuaianPenyetaraan,
@@ -173,23 +195,52 @@ const KeahlianPage = () => {
         akKonversi2023,
         akKonversi2024,
         akKonversi2025,
-        periodeBulan2025
+        akKonversi2026,
+        periodeBulan2026
     };
 
-    const currentAKPendidikan = parseFloat(angkaKreditPendidikan || 0);
-    const currentAKPenyesuaian = parseFloat(penyesuaianPenyetaraan || 0);
-    const currentAKKonversi2022 = parseFloat(akKonversi2022 || 0);
-    const currentAKKonversi2023 = calculatedAk2023;
-    const currentAKKonversi2024 = calculatedAk2024;
-    const currentAKKonversi2025 = calculatedAk2025;
+    const currentAKPendidikan = Number(angkaKreditPendidikan || 0);
+    const currentAKPenyesuaian = Number(
+    (penyesuaianPenyetaraan || "0").replace(",", ".")
+    );
+   const currentAKKonversi2022 = Number(
+  (akKonversi2022 || "0").replace(",", ".")
+    );
+// Ambil fraction berdasarkan bulan, default = 1 (tidak dikali kalau bulan kosong)
+    const fraction = bulanToFractionReverse[bulantmt] || 1;
+
+    // === AK Konversi 2023 ===
+    const currentAKKonversi2023 =
+      tahuntmt === "2023"
+        ? calculatedAk2023 * fraction
+        : calculatedAk2023;
+
+    // === AK Konversi 2024 ===
+    const currentAKKonversi2024 =
+      tahuntmt === "2024"
+        ? calculatedAk2024 * fraction
+        : calculatedAk2024;
+
+    // === AK Konversi 2025 ===
+    const currentAKKonversi2025 =
+      tahuntmt === "2025"
+        ? calculatedAk2025 * fraction
+        : calculatedAk2025;
+    
+    
+    const currentAKKonversi2026 =
+      tahuntmt === "2026"
+        ? calculatedAk2026 * fraction
+        : calculatedAk2026;
+
     const dasarAK =
                   (golonganDasarAK[jenjangJabatan]?.[golongan]) ??
                   (golonganDasarAK.base[golongan]) ??
                   0;
 
     const totalAK = currentAKPendidikan + currentAKPenyesuaian + currentAKKonversi2022 +
-                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + dasarAK - dasarAK;
-
+                    currentAKKonversi2023 + currentAKKonversi2024 + currentAKKonversi2025 + currentAKKonversi2026 + dasarAK - dasarAK;
+                    
     // get both numbers
     const minimalPangkatObj = getMinimalPangkatAK(jenjangJabatan, golongan);
     const minimalPangkatDisplay = Number(minimalPangkatObj.display || 0); // for UI only
@@ -199,10 +250,17 @@ const KeahlianPage = () => {
     const koe = keahlianJenjangOptions[jenjangJabatan] || 0;
 
 let pangkatMessage = "";
-if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimalPangkatValue || totalAK <= minimalPangkatValue)) {
-    pangkatMessage = "Anda Sudah Mencapai Pangkat Tertinggi Jejang Ahli Utama"; 
+
+if (golongan === "IVe" && jenjangJabatan === "Ahli Utama") {
+  pangkatMessage = "Anda Sudah Mencapai Pangkat Tertinggi Jenjang Ahli Utama";
+} else if (
+  totalAK >= minimalPangkatValue &&
+  totalAK < minimalJenjang &&
+  ["IIIb", "IIId", "IVc"].includes(golongan)
+) {
+  pangkatMessage = "Tidak Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
 } else if (totalAK >= minimalPangkatValue) {
-    pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
+  pangkatMessage = "Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi";
 } else {
     const gapPangkat = minimalPangkatValue - totalAK;
     if (koe > 0) {
@@ -248,16 +306,16 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
                                 `- Baik Dalam ${formatMonths(bln_baik_jenjang)}; atau<br>` +
                                 `- Butuh Perbaikan Dalam ${formatMonths(bln_bp_jenjang)}`;
         } else {
-            jenjangMessage = `Butuh Tambahan Angka Kredit ${gapJenjang.toFixed(2)} Untuk Kenaikan Jenjang.`;
+            jenjangMessage = `Butuh Tambahan Angka Kredit ${gapJenjang.toFixed(3)} Untuk Kenaikan Jenjang.`;
         }
     }
 
     navigate('/results', {
       state: {
         results: {
-          totalAK: totalAK.toFixed(2),
-          akMinimalPangkat: minimalPangkatDisplay.toFixed(2), // for UI
-          akMinimalJenjang: minimalJenjang.toFixed(2),
+          totalAK: totalAK.toFixed(3),
+          akMinimalPangkat: minimalPangkatDisplay.toFixed(0), // for UI
+          akMinimalJenjang: minimalJenjang.toFixed(0),
           kenaikanPangkat: pangkatMessage,
           kenaikanJenjang: jenjangMessage,
           isPangkatSufficient: totalAK >= minimalPangkatValue,
@@ -393,6 +451,116 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
               ))}
             </select>
           </div>
+
+          <h2 className="
+            font-poppins
+            text-blue-300
+            text-xl
+            md:text-2xl
+            mb-px-17
+            text-center
+            font-bold
+          ">
+            TMT Jabatan Fungsional
+          </h2>
+
+
+          {/* === BULAN & TAHUN DROPDOWN === */}
+    <div className="mb-4 flex gap-4">
+
+      {/* Bulan */}
+      <div className="w-1/2">
+        <label
+          htmlFor="bulan"
+          className="
+            block text-text-light
+            mb-px-5
+            font-bold
+            text-sm
+            whitespace-nowrap
+          "
+        >
+          Bulan TMT:
+        </label>
+
+        <select
+          id="bulan"
+          className="
+            w-full
+            bg-input-bg
+            text-text-light
+            p-px-10
+            my-px-10
+            border border-border-color
+            rounded-md
+            text-base
+            box-border
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            whitespace-nowrap
+          "
+          value={bulantmt}
+          onChange={(e) => setBulan(e.target.value)}
+          required
+        >
+          <option value="">Pilih Bulan...</option>
+          {[
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+          ].map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Tahun */}
+      <div className="w-1/2">
+        <label
+          htmlFor="tahun"
+          className="
+            block text-text-light
+            mb-px-5
+            font-bold
+            text-sm
+            whitespace-nowrap
+          "
+        >
+          Tahun TMT:
+        </label>
+
+        <select
+          id="tahun"
+          className="
+            w-full
+            bg-input-bg
+            text-text-light
+            p-px-10
+            my-px-10
+            border border-border-color
+            rounded-md
+            text-base
+            box-border
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            whitespace-nowrap
+          "
+          value={tahuntmt}
+          onChange={(e) => setTahun(e.target.value)}
+          required
+        >
+          <option value="">Pilih Tahun...</option>
+          {Array.from({ length: 7 }).map((_, index) => {
+            const year = new Date().getFullYear() - index;
+            return (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+    </div>
+
         </div>
 
         {/* Keahlian Specific Fields */}
@@ -504,7 +672,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
                   cursor-not-allowed
                   focus:outline-none
                 "
-                value={angkaKreditPendidikan.toFixed(2)}
+                value={angkaKreditPendidikan.toFixed(3)}
               />
             </div>
           )}
@@ -519,9 +687,9 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
             text-left
             font-semibold
           ">
-            Angka Kredit Penyesuaian/Penyetaraan
+            Angka Kredit Penyesuaian/Penyetaraan 
             <br />
-            <span className="text-sm font-normal text-gray-400">(Kosongkan Bila Tidak Ada)</span>
+            <span className="text-sm font-normal text-gray-400">(Kosongkan Bila Tidak Ada/Isi Menggunakan KOMA ",")</span>
           </h3>
           <div className="mb-4">
             <label htmlFor="penyesuaianPenyetaraan" className="sr-only">Penyesuaian/Penyetaraan</label>
@@ -577,7 +745,7 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
               text-sm
               whitespace-nowrap
             ">
-              Tahun 2022
+              Tahun 2022 (Isi Menggunakan KOMA ",")
             </label>
             <input
             type="text" // use text so we can allow commas
@@ -611,10 +779,10 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
             onBlur={() => {
               // Convert comma string to number internally if needed
               if (akKonversi2022) {
-                const num = parseFloat(akKonversi2022.replace(",", "."));
+                const num = Number(akKonversi2022.replace(",", "."));
                 if (!isNaN(num)) {
                   // store as string with 2 decimals and comma
-                  setAkKonversi2022(num.toFixed(2).replace(".", ","));
+                  setAkKonversi2022(num.toFixed(3).replace(".", ","));
                 }
               }
             }}
@@ -712,14 +880,15 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
           </div>
 
           <div className="mb-4">
-            <label htmlFor="akKonversi2025" className="
+            <label htmlFor="akKonversi2026" className="
               block text-text-light
               mb-px-5
               font-bold
               text-sm
               whitespace-nowrap
             ">
-              Tahun 2025 (Penilaian SKP):
+
+            Tahun 2025 (Penilaian SKP):
             </label>
             <select
               id="akKonversi2025"
@@ -739,7 +908,6 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
               "
               value={akKonversi2025}
               onChange={(e) => setAkKonversi2025(e.target.value)}
-              required
             >
               <option value="">Pilih...</option>
               {skpOptions.map((option) => (
@@ -752,18 +920,19 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
           </div>
 
           <div className="mb-4">
-            <label htmlFor="periodeBulan2025" className="
+            <label htmlFor="akKonversi2026" className="
               block text-text-light
               mb-px-5
               font-bold
               text-sm
               whitespace-nowrap
             ">
-              Periode Bulan Berjalan Tahun 2025:
+
+              Tahun 2026 (Penilaian SKP):
             </label>
             <select
-              id="periodeBulan2025"
-              name="periodeBulan2025"
+              id="akKonversi2026"
+              name="akKonversi2026"
               className="
                 w-full
                 bg-input-bg
@@ -777,9 +946,49 @@ if (golongan === "IVe" && jenjangJabatan === "Ahli Utama" && (totalAK >= minimal
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                 whitespace-nowrap
               "
-              value={periodeBulan2025}
-              onChange={(e) => setPeriodeBulan2025(e.target.value)}
-              required
+              value={akKonversi2026}
+              onChange={(e) => setAkKonversi2026(e.target.value)}
+              
+            >
+              <option value="">Pilih...</option>
+              {skpOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <input type="hidden" value={calculatedAk2026} />
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="periodeBulan2026" className="
+              block text-text-light
+              mb-px-5
+              font-bold
+              text-sm
+              whitespace-nowrap
+            ">
+              Periode Bulan Berjalan Tahun 2026:
+            </label>
+            <select
+              id="periodeBulan2026"
+              name="periodeBulan2026"
+              className="
+                w-full
+                bg-input-bg
+                text-text-light
+                p-px-10
+                my-px-10
+                border border-border-color
+                rounded-md
+                text-base
+                box-border
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                whitespace-nowrap
+              "
+              value={periodeBulan2026}
+              onChange={(e) => setPeriodeBulan2026(e.target.value)}
+              
             >
               <option value="">Pilih...</option>
               {monthOptions.map((option) => (

@@ -9,7 +9,7 @@ const ResultPage = () => {
 
   const { results, formData: originalFormData, originPath } = location.state || {};
 
-  const totalAK = results?.totalAK || '0.00';
+  const totalAK = (results?.totalAK || "0.00").toString().replace(".", ",");
   const akMinimalPangkat = results?.akMinimalPangkat || '0.00';
   const akMinimalJenjang = results?.akMinimalJenjang || '0.00';
   const kenaikanPangkat = results?.kenaikanPangkat || 'N/A';
@@ -29,7 +29,7 @@ const ResultPage = () => {
 
   // Determine button text dynamically
   let dokumenButtonText = '';
-  const isPangkatEligible = kenaikanPangkat.includes('Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi');
+  const isPangkatEligible = kenaikanPangkat === 'Dapat Dipertimbangkan Untuk Kenaikan Pangkat Setingkat Lebih Tinggi';
   const isJenjangEligible = kenaikanJenjang.includes('Dapat Dipertimbangkan Untuk Kenaikan Jenjang Jabatan Fungsional');
 
   if (isPangkatEligible && isJenjangEligible) {

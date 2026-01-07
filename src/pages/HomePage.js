@@ -15,9 +15,10 @@ const HomePage = () => {
     navigate('/keterampilan');
   };
 
-    const handlePanduanClick = () => {
-    navigate('/panduan');
-  };
+const handlePanduanClick = () => {
+  window.open('https://drive.google.com/file/d/1VlWkCEbaBObJKFmNFVvGo7yqWnm0qOMk/view?usp=sharing', '_blank');
+};
+
 
   return (
     <div
