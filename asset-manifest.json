@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/PerhitunganAKJF/static/css/main.662f000b.css",
-    "main.js": "/PerhitunganAKJF/static/js/main.acaf9355.js",
+    "main.js": "/PerhitunganAKJF/static/js/main.303c52b3.js",
     "index.html": "/PerhitunganAKJF/index.html",
     "main.662f000b.css.map": "/PerhitunganAKJF/static/css/main.662f000b.css.map",
-    "main.acaf9355.js.map": "/PerhitunganAKJF/static/js/main.acaf9355.js.map"
+    "main.303c52b3.js.map": "/PerhitunganAKJF/static/js/main.303c52b3.js.map"
   },
   "entrypoints": [
     "static/css/main.662f000b.css",
-    "static/js/main.acaf9355.js"
+    "static/js/main.303c52b3.js"
   ]
 }
